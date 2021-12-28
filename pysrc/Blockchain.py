@@ -1,7 +1,7 @@
-import Transaction
+import pysrc.Transaction
 import hashlib
 import time
-import json
+# import json
 
 
 class Blockchain:
@@ -38,7 +38,7 @@ class Blockchain:
 
         self.chain.append(block)
 
-        # json.dump(block).encode()
+        # json.dump(block)
 
     def search_transaction(self, transaction_hash):
         if len(self.chain) == 0:
@@ -58,7 +58,7 @@ class Blockchain:
 
     def put_trx_in_block(self, transactions):
         # print(transactions)
-        if isinstance(transactions[0], Transaction.Transaction):
+        if isinstance(transactions[0], pysrc.Transaction.Transaction):
             for trx in transactions:
                 self.mempool.append(trx)
         else:

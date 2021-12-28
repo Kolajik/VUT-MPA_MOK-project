@@ -1,0 +1,78 @@
+/**
+https://css-tricks.com/can-get-pretty-far-making-slider-just-html-css/ - Author of the slide boxes
+**/
+
+html {
+    background: rgba(0, 0, 40, 0.8);
+}
+
+body {
+    margin: 0;
+    padding: 3em;
+    font-family: arial, sans-serif;
+#    background: rgba(190, 180, 222, 0.9);
+}
+
+#encryptlat, #encryptlng, #response {
+    font-size: 8pt;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.top_heading {
+    font-size: 1rem;
+    text-align: center;
+    padding: 0.5em 0;
+    border-radius: 9px;
+    # height: 100px;
+    width: 100%;
+    background-color: rgba(20, 120, 222, 0.4);
+}
+
+.slider {
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+}
+
+.slides {
+    display: flex;
+
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.slides::-webkit-scrollbar {
+  width: 1em;
+  height: 0.8em;
+}
+
+.slides::-webkit-scrollbar-thumb {
+  background: black;
+  border-radius: 10px;
+}
+
+.slides::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.slides > div {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    width: 200px;
+    height: 150px;
+    margin-right: 50px;
+    border-radius: 10px;
+    background: #efe;
+    transform-origin: center center;
+    transform: scale(1);
+    transition: transform 1s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 100px;
+}
