@@ -1,0 +1,4 @@
+flask
+secrets
+pycryptodome
+ecdsa
