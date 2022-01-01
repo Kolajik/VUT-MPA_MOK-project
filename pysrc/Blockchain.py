@@ -60,7 +60,7 @@ class Blockchain:
         # print(transactions)
         if isinstance(transactions[0], pysrc.Transaction.Transaction):
             for trx in transactions:
-                self.mempool.append(trx)
+                self.mempool.append(trx.__repr__())
         else:
             print("Transaction {} not of a type Transaction.\nActual type: {}".format(transactions, type(transactions)))
 
