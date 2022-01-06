@@ -1,13 +1,10 @@
-import codecs
 import hashlib
 import time
-import pysrc.Ethereum
-import json
 
 
 class Transaction:
 
-    def __init__(self, sender, recipient, amount):
+    def __init__(self, sender, recipient, amount, contractData):
         self.sender = sender.encode('utf-8')
         self.recipient = recipient.encode('utf-8')
         self.amount = amount
@@ -16,6 +13,7 @@ class Transaction:
         self.transaction_hash = str(hashlib.sha3_256(concat_info.encode('utf-8')).hexdigest())
         # transaction hash is signed
         self.signature = None
+        self.contractData = contractData
 
     def __repr__(self):
         return {

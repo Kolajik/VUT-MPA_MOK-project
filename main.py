@@ -14,6 +14,7 @@ app = flask.Flask(__name__)
 userAddresses = []
 deviceAddresses = []
 blockchain = B.Blockchain()
+nfts = []
 
 
 def signTransaction(transaction, signing_key):
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     userAddresses.append(eth.generateKeysAndAddress())
     userAddresses.append(eth.generateKeysAndAddress())
     # Set genesis block transaction (coinbase transaction)
-    genesis_trx = [T.Transaction(userAddresses[0]['wallet_address'], userAddresses[1]['wallet_address'], "1500 SNFT")]
+    genesis_trx = [T.Transaction(userAddresses[0]['wallet_address'], userAddresses[1]['wallet_address'], "1500 SNFT", None)]
     # Signing transaction
     genesis_trx[0].signature = codecs.encode(
         eth.signTransaction(userAddresses[0]['private_key_b'], bytes(genesis_trx[0].transaction_hash, 'utf-8')), 'hex')

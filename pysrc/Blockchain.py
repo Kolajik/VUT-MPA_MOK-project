@@ -64,7 +64,7 @@ class Blockchain:
         else:
             print("Transaction {} not of a type Transaction.\nActual type: {}".format(transactions, type(transactions)))
 
-    def print_blocks(self):
+    def get_blocks(self):
         print(self.chain)
 
     def set_difficulty(self, diff):
