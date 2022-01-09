@@ -56,9 +56,9 @@ def verifyTransaction(verifying_key, transaction_bytes, transaction_signature_by
     return verifying_key.verify(transaction_signature_bytes, transaction_bytes)
 
 
-if __name__ == '__main__':
-    wallets = [generateKeysAndAddress(), generateKeysAndAddress()]
-    print(wallets[0]['wallet_address'])
-
-    signature = signTransaction(signing_key_bytes=wallets[0]['private_key_b'], transaction_bytes=b"Hellooooo!")
-    print(verifyTransaction(wallets[0]['public_key'], b"Hellooooo!", signature))
+# if __name__ == '__main__':
+#     wallets = [generateKeysAndAddress(), generateKeysAndAddress()]
+#     print(wallets[0]['wallet_address'])
+#
+#     signature = signTransaction(signing_key_bytes=wallets[0]['private_key_b'], transaction_bytes=b"Hellooooo!")
+#     print(verifyTransaction(wallets[0]['public_key'], b"Hellooooo!", signature))

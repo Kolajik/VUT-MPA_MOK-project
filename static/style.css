@@ -3,20 +3,14 @@ https://css-tricks.com/can-get-pretty-far-making-slider-just-html-css/ - Author 
 **/
 
 html {
-    background: rgba(0, 0, 40, 0.8);
+    background: rgba(0, 0, 70, 0.55);
 }
 
 body {
     margin: 0;
     padding: 3em;
-    font-family: arial, sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
 #    background: rgba(190, 180, 222, 0.9);
-}
-
-#encryptlat, #encryptlng, #response {
-    font-size: 8pt;
-    word-wrap: break-word;
-    word-break: break-word;
 }
 
 .top_heading {
@@ -46,13 +40,13 @@ body {
 }
 
 .slides::-webkit-scrollbar {
-  width: 1em;
-  height: 0.8em;
+    width: 1em;
+    height: 0.8em;
 }
 
 .slides::-webkit-scrollbar-thumb {
-  background: black;
-  border-radius: 10px;
+    background: black;
+    border-radius: 10px;
 }
 
 .slides::-webkit-scrollbar-track {
@@ -62,9 +56,9 @@ body {
 .slides > div {
     scroll-snap-align: start;
     flex-shrink: 0;
-    width: 200px;
-    height: 150px;
-    margin-right: 50px;
+    width: 150px;
+    height: 100px;
+    margin-right: 20px;
     border-radius: 10px;
     background: #efe;
     transform-origin: center center;
@@ -74,5 +68,55 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 100px;
+    font-size: 65px;
+}
+
+.addresses {
+    width: 25%;
+    padding: 15px 2em;
+    float: left;
+    box-sizing: border-box;
+}
+
+.addresses > select {
+    border: 1px solid;
+    border-radius: 4px;
+    width: 100%;
+    background-color: #f1f1f1;
+}
+
+.addresses > label {
+    padding: 0px 20px 0px 0;
+    display: block;
+}
+
+.blockchain_actions {
+    padding: 15px 0;
+    clear: left;
+}
+
+.tables {
+    float: right;
+    width: 50%;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
 }

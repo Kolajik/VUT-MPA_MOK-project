@@ -1,4 +1,6 @@
+import random
 import time
+from datetime import datetime
 
 
 class SmartNFT:
@@ -7,13 +9,14 @@ class SmartNFT:
               "EU": "Engaged with User",
               "WU": "Waiting for user"}
 
-    def __init__(self, deviceAddress, tokenId):
+    def __init__(self, initialOwnerAddress, deviceAddress, tokenId, timeout):
         self.tokenId = tokenId
         self.state = self.states['WO']
         self.userAddr = None
-        self.ownerAddr = None
+        self.ownerAddr = initialOwnerAddress
         self.deviceAddr = deviceAddress
-        self.timestamp = time.strftime("%m/%d/%Y, %H:%M:%S")
+        self.timestamp = time.localtime()
+        self.timeout = timeout
 
     def __repr__(self):
         return {
@@ -21,7 +24,8 @@ class SmartNFT:
             "ownerAddress": self.ownerAddr,
             "deviceAddress": self.deviceAddr,
             "state": self.state,
-            "timestamp": self.timestamp
+            "timestamp": time.strftime("%d/%m/%Y, %H:%M:%S", self.timestamp),
+            "timeout": self.timeout
         }
 
     def transferFrom(self, _from, _to):
@@ -30,14 +34,43 @@ class SmartNFT:
         else:
             self.ownerAddr = _to
             self.state = self.states['EO']
-            return [True, "Token with id {} transferred from {} owner to a new owner with address {}".format(self.tokenId, _from, self.ownerAddr)]
+            return [True, "Token with id {} transferred from {} owner to a new owner with address {}".format(self.tokenId, _from, self.ownerAddr), random.randint(3000, 15000)]
 
-    def setUser(self, _user):
+    def setUser(self, _owner, _user):
         if self.userAddr == _user:
             return [False, "{} is already a user.".format(_user)]
+        elif self.ownerAddr != _owner:
+            return [False, "{} is not the owner.".format(_owner)]
         elif self.state != self.states['EO'] or self.state != self.states['WU']:
             return [False, "Incorrect state of the device - {}.".format(self.state)]
         else:
             self.userAddr = _user
             self.state = self.states['EO']
-            return [True, "Token with id {} has now user with address {}.".format(self.tokenId, self.userAddr)]
+            return [True, "Token with id {} has now user with address {}.".format(self.tokenId, self.userAddr), random.randint(3000, 10000)]
+
+    def userEngagement(self, _user):
+        if self.userAddr != _user:
+            return [False, "{} is not the user of token {}.".format(_user, self.tokenId)]
+        else:
+            self.state = self.states['EU']
+            return [True, "State of the token {} set to \"{}\".".format(self.tokenId, self.state), random.randint(100, 3000)]
+
+    def ownerEngagement(self, _owner):
+        if self.ownerAddr != _owner:
+            return [False, "{} is not the owner of token {}.".format(_owner, self.tokenId)]
+        else:
+            self.state = self.states['EO']
+            return [True, "State of the token {} set to \"{}\".".format(self.tokenId, self.state), random.randint(10, 3000)]
+
+    def setTimeout(self, _owner, timeout):
+        if self.ownerAddr != _owner:
+            return [False, "{} is not the owner of token {}.".format(_owner, self.tokenId)]
+        else:
+            self.timeout = timeout
+            return [True, "Timeout of the token {} set to {}.".format(self.tokenId, self.timeout), random.randint(100, 300)]
+
+    def checkTimeout(self, blockTimestamp):
+        if (time.mktime(self.timestamp.__getitem__(0)) + self.timeout) >= time.mktime(blockTimestamp.__getitem__(0)):
+            return True
+        else:
+            return False
