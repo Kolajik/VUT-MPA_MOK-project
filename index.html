@@ -24,7 +24,6 @@
     <div class="addresses">
       <label for="ownerAddress">Choose an owner address:</label>
       <select name="ownerAddress" id="ownerAddress">
-          <option value="volvo">Volvo</option>
       </select>
     </div>
 
@@ -35,8 +34,18 @@
       </select>
     </div>
 
+    <h3 style="clear: left;">Actions of the blockchain:</h3>
+    <div class="blockchain_actions">
+      <button id="addBlock" disabled="disabled">Add a block</button>
+    </div>
+    <div class="blockchain_actions">
+      <h4>Addresses actions</h4>
+      <button id="getOwnerAddresses" onclick="fetchAddressesAndFillSelect('ownerAddress', '/api/getOwnerAddresses')">Get owner addresses</button>
+      <button id="getUserAddresses" onclick="fetchAddressesAndFillSelect('userAddress', '/api/getUserAddresses')">Get user addresses</button>
+    </div>
+
     <div class="tables">
-      <table>
+      <table id="NFTTable">
       <caption style="font-weight:bold; padding: 3px;">Smart NFTs table</caption>
         <tr>
           <th>Device address</th>
@@ -69,9 +78,40 @@
       </table>
     </div>
 
-    <h3>Actions of the blockchain:</h3>
-    <div class="blockchain_actions">
-      <button id="geo" disabled="disabled">Add a block</button>
+    <br>
+
+    <div class="tables">
+      <table id="blocksTable">
+      <caption style="font-weight:bold; padding: 3px;">Blocks Table</caption>
+        <tr>
+          <th>Device address</th>
+          <th>Owner address</th>
+          <th>Token ID</th>
+          <th>State</th>
+          <th>Timeout</th>
+        </tr>
+        <tr>
+          <td>Centro comercial Moctezuma</td>
+          <td>Francisco Chang</td>
+          <td>Mexico</td>
+          <td>Mexico</td>
+          <td>Mexico</td>
+        </tr>
+        <tr>
+          <td>Ernst Handel</td>
+          <td>Roland Mendel</td>
+          <td>Austria</td>
+          <td>Austria</td>
+          <td>Austria</td>
+        </tr>
+        <tr>
+          <td>Island Trading</td>
+          <td>Helen Bennett</td>
+          <td>Helen Bennett</td>
+          <td>Helen Bennett</td>
+          <td>UK</td>
+        </tr>
+      </table>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

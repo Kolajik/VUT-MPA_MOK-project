@@ -83,6 +83,9 @@ body {
     border-radius: 4px;
     width: 100%;
     background-color: #f1f1f1;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-weight: bold;
+    font-size: 13px;
 }
 
 .addresses > label {
@@ -91,13 +94,24 @@ body {
 }
 
 .blockchain_actions {
-    padding: 15px 0;
+    padding: 10px 0;
     clear: left;
 }
 
+.blockchain_actions > button {
+    font-size: 17px;
+    width: 150px;
+}
+
+.blockchain_actions > button:hover {
+    box-shadow: 0 13px 20px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.2);
+}
+
 .tables {
-    float: right;
-    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+    width: 55%;
 }
 
 table {

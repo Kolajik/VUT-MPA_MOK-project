@@ -88,8 +88,8 @@ def getExistingUserAddresses():
         serializedUserAddr.append(
             {
                 "wallet_address": wallet['wallet_address'],
-                "private_key": codecs.encode(wallet['private_key_b'], 'hex').decode('utf-8'),
-                "public_key": codecs.encode(wallet['public_key'].to_string(), 'hex').decode('utf-8')
+                # "private_key": codecs.encode(wallet['private_key_b'], 'hex').decode('utf-8'),
+                # "public_key": codecs.encode(wallet['public_key'].to_string(), 'hex').decode('utf-8')
             })
     return jsonify(serializedUserAddr)
 
@@ -101,8 +101,8 @@ def getExistingOwnerAddresses():
         serializedOwnerAddr.append(
             {
                 "wallet_address": wallet['wallet_address'],
-                "private_key": codecs.encode(wallet['private_key_b'], 'hex').decode('utf-8'),
-                "public_key": codecs.encode(wallet['public_key'].to_string(), 'hex').decode('utf-8')
+                # "private_key": codecs.encode(wallet['private_key_b'], 'hex').decode('utf-8'),
+                # "public_key": codecs.encode(wallet['public_key'].to_string(), 'hex').decode('utf-8')
             })
     return jsonify(serializedOwnerAddr)
 
@@ -249,38 +249,38 @@ def transferNFTOwner():
 
 
 if __name__ == '__main__':
-    userAddresses.append(eth.generateKeysAndAddress())
-    userAddresses.append(eth.generateKeysAndAddress())
-    # Set genesis block transaction (coinbase transaction)
-    genesis_trx = [
-        T.Transaction(userAddresses[0]['wallet_address'], userAddresses[1]['wallet_address'], "1500 SNFT",
-                      random.randint(100, 5000), None)
-    ]
-    # Signing transaction
-    genesis_trx[0].signature = computeSignature(genesis_trx[0], userAddresses[0]['private_key_b'])
-
-    # NFTs
-    deviceAddresses.append(eth.generateKeysAndAddress())
-    ownerAddresses.append(eth.generateKeysAndAddress())
-    nft0 = nft.SmartNFT(initialOwnerAddress=ownerAddresses[0]['wallet_address'],
-                        deviceAddress=deviceAddresses[0]['wallet_address'], tokenId=999, timeout=1500)
-    result = nft0.transferFrom(None, ownerAddresses[0]['wallet_address'])
-    # print(time.mktime(nft0.timestamp.__getitem__(0)))
-    genesis_trx[0].contractData = nft0.__repr__()
-    # print(genesis_trx[0].__repr__()['contractData'])
-
-    # Blockchain
-    blockchain.set_difficulty(4)
-    blockchain.put_trx_in_mempool(genesis_trx)
-    blockchain.new_block()
-
-    # print(blockchain.chain)
-
-    # Verifying transaction
-    address = userAddresses[0]['public_key']
-    trx_b = bytes(genesis_trx[0].transaction_hash, 'utf-8')
-    signature = codecs.decode(bytes(genesis_trx[0].signature), 'hex')
-    # print(eth.verifyTransaction(address, trx_b, signature))
+    # userAddresses.append(eth.generateKeysAndAddress())
+    # userAddresses.append(eth.generateKeysAndAddress())
+    # # Set genesis block transaction (coinbase transaction)
+    # genesis_trx = [
+    #     T.Transaction(userAddresses[0]['wallet_address'], userAddresses[1]['wallet_address'], "1500 SNFT",
+    #                   random.randint(100, 5000), None)
+    # ]
+    # # Signing transaction
+    # genesis_trx[0].signature = computeSignature(genesis_trx[0], userAddresses[0]['private_key_b'])
+    #
+    # # NFTs
+    # deviceAddresses.append(eth.generateKeysAndAddress())
+    # ownerAddresses.append(eth.generateKeysAndAddress())
+    # nft0 = nft.SmartNFT(initialOwnerAddress=ownerAddresses[0]['wallet_address'],
+    #                     deviceAddress=deviceAddresses[0]['wallet_address'], tokenId=999, timeout=1500)
+    # result = nft0.transferFrom(None, ownerAddresses[0]['wallet_address'])
+    # # print(time.mktime(nft0.timestamp.__getitem__(0)))
+    # genesis_trx[0].contractData = nft0.__repr__()
+    # # print(genesis_trx[0].__repr__()['contractData'])
+    #
+    # # Blockchain
+    # blockchain.set_difficulty(4)
+    # blockchain.put_trx_in_mempool(genesis_trx)
+    # blockchain.new_block()
+    #
+    # # print(blockchain.chain)
+    #
+    # # Verifying transaction
+    # address = userAddresses[0]['public_key']
+    # trx_b = bytes(genesis_trx[0].transaction_hash, 'utf-8')
+    # signature = codecs.decode(bytes(genesis_trx[0].signature), 'hex')
+    # # print(eth.verifyTransaction(address, trx_b, signature))
 
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=False)
