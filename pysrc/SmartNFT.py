@@ -23,6 +23,7 @@ class SmartNFT:
             "tokenId": self.tokenId,
             "ownerAddress": self.ownerAddr,
             "deviceAddress": self.deviceAddr,
+            "userAddress": self.userAddr,
             "state": self.state,
             "timestamp": time.strftime("%d/%m/%Y, %H:%M:%S", self.timestamp),
             "timeout": self.timeout
@@ -41,29 +42,36 @@ class SmartNFT:
             return [False, "{} is already a user.".format(_user)]
         elif self.ownerAddr != _owner:
             return [False, "{} is not the owner.".format(_owner)]
-        elif self.state != self.states['EO'] or self.state != self.states['WU']:
+        elif self.state not in [self.states['EO'], self.states['WU']]:
             return [False, "Incorrect state of the device - {}.".format(self.state)]
         else:
             self.userAddr = _user
-            self.state = self.states['EO']
+            if self.userAddr == self.ownerAddr:
+                self.state = self.states['EU']
+            else:
+                self.state = self.states['WU']
             return [True, "Token with id {} has now user with address {}.".format(self.tokenId, self.userAddr), random.randint(3000, 10000)]
 
-    def userEngagement(self, _user):
-        if self.userAddr != _user:
+    def userEngagement(self, _user, _tokenId):
+        if self.userAddr != _user or self.tokenId != _tokenId:
             return [False, "{} is not the user of token {}.".format(_user, self.tokenId)]
+        elif self.state != self.states['WU']:
+            return [False, "Incorrect state of the device - {}.".format(self.state)]
         else:
             self.state = self.states['EU']
             return [True, "State of the token {} set to \"{}\".".format(self.tokenId, self.state), random.randint(100, 3000)]
 
-    def ownerEngagement(self, _owner):
-        if self.ownerAddr != _owner:
+    def ownerEngagement(self, _owner, _tokenId):
+        if self.ownerAddr != _owner or self.tokenId != _tokenId:
             return [False, "{} is not the owner of token {}.".format(_owner, self.tokenId)]
+        elif self.state != self.states['WO']:
+            return [False, "Incorrect state of the device - {}.".format(self.state)]
         else:
             self.state = self.states['EO']
             return [True, "State of the token {} set to \"{}\".".format(self.tokenId, self.state), random.randint(10, 3000)]
 
-    def setTimeout(self, _owner, timeout):
-        if self.ownerAddr != _owner:
+    def setTimeout(self, _owner, timeout, _tokenId):
+        if self.ownerAddr != _owner or self.tokenId != _tokenId:
             return [False, "{} is not the owner of token {}.".format(_owner, self.tokenId)]
         else:
             self.timeout = timeout

@@ -80,6 +80,15 @@ def checkParams(request_params, *required_parameters):
 def print_index():
     return open('./index.html', 'r').read()
 
+@app.route('/api/setBlockchainDifficulty', methods=['PUT'])
+def setDifficulty():
+    correctParameters = checkParams(request.args, "difficulty")
+    if not correctParameters[0]:
+        return Response(json.dumps({"success": False, "message": correctParameters[1]}), status=400,
+                        content_type="application/json")
+    difficulty = request.args.get('difficulty', default=0, type=int)
+    blockchain.set_difficulty(difficulty)
+    return jsonify(success=True, message="Blockchain difficulty set to {}.".format(blockchain.difficulty))
 
 @app.route('/api/getUserAddresses', methods=['GET'])
 def getExistingUserAddresses():
@@ -202,8 +211,11 @@ def getTokens():
 
 @app.route('/api/transferNFTOwner', methods=['PUT'])
 def transferNFTOwner():
-    """
+    """Function for NFT Owner transfer.
 
+    :param newOwnerAddress: address of a new NFT owner
+    :param ownerAddress: address of the old NFT owner
+    :param tokenId: tokenId of NFT in question
     :return:
     """
     # Check params of request
@@ -221,6 +233,18 @@ def transferNFTOwner():
             json.dumps({"success": False, "message": f"NFT with tokenId {tokenIdToTransfer} does not exist"}),
             status=404,
             content_type="application/json")
+
+    # Check existence of an address on input
+    if not checkExistenceOfAnAddress(ownerAddresses, deviceOwnerAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {deviceOwnerAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
+
+    # Check existence of an address on input
+    if not checkExistenceOfAnAddress(ownerAddresses, newDeviceOwnerAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {deviceOwnerAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
 
     nft_tmp = getNFTFromMemory(tokenIdToTransfer)
     result = nft_tmp.transferFrom(deviceOwnerAddress, newDeviceOwnerAddress)
@@ -247,6 +271,159 @@ def transferNFTOwner():
             status=200,
             content_type="application/json")
 
+
+@app.route('/api/setNFTUser', methods=['PUT'])
+def setNFTUser():
+    # Check params of request
+    correctParameters = checkParams(request.args, "newUserAddress", "ownerAddress", "tokenId", 'ignoreUserCheck')
+    if not correctParameters[0]:
+        return Response(json.dumps({"success": False, "message": correctParameters[1]}), status=400,
+                        content_type="application/json")
+    newDeviceUserAddress = request.args.get('newUserAddress', default="0", type=str)
+    deviceOwnerAddress = request.args.get('ownerAddress', default="0", type=str)
+    tokenIdToTransfer = request.args.get('tokenId', default=-1, type=int)
+    ignoreUserAddressCheck = request.args.get('ignoreUserCheck', default=False, type=bool)
+
+    # Check existence of an NFT on input
+    if not checkExistenceOfNFT(tokenIdToTransfer):
+        return Response(
+            json.dumps({"success": False, "message": f"NFT with tokenId {tokenIdToTransfer} does not exist"}),
+            status=404,
+            content_type="application/json")
+
+    # Check existence of an address on input
+    if not checkExistenceOfAnAddress(ownerAddresses, deviceOwnerAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {deviceOwnerAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
+
+    # Check existence of an address on input
+    if not ignoreUserAddressCheck and not checkExistenceOfAnAddress(userAddresses, newDeviceUserAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {newDeviceUserAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
+
+    nft_tmp = getNFTFromMemory(tokenIdToTransfer)
+    result = nft_tmp.setUser(deviceOwnerAddress, newDeviceUserAddress)
+    if not result[0]:
+        return Response(
+            json.dumps({"success": False, "message": result[1]}),
+            status=400,
+            content_type="application/json")
+    else:
+        # Write NFT into a transaction as contractData
+        transaction = T.Transaction(sender=deviceOwnerAddress, recipient="SmartContract",
+                                    amount="0 SNFT",
+                                    gas="{} SNFT".format(result[2]),
+                                    contractData={
+                                        "contractOperation": "TransferOwner",
+                                        "nft": nft_tmp.__repr__()
+                                    })
+        addrInfo = getAddressInfo(ownerAddresses, nft_tmp.ownerAddr)
+        transaction.setSignature(computeSignature(transaction, addrInfo['private_key_b']))
+        blockchain.put_trx_in_mempool([transaction])
+        return Response(
+            json.dumps({"success": True,
+                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}"}),
+            status=200,
+            content_type="application/json")
+
+@app.route('/api/engageNFTUser', methods=['PUT'])
+def engageNFTUser():
+    # Check params of request
+    correctParameters = checkParams(request.args, "userAddressEngage", "tokenId", "ignoreUserCheck")
+    if not correctParameters[0]:
+        return Response(json.dumps({"success": False, "message": correctParameters[1]}), status=400,
+                        content_type="application/json")
+    deviceUserAddress = request.args.get('userAddressEngage', default="0", type=str)
+    tokenIdToEngage = request.args.get('tokenId', default=-1, type=int)
+    ignoreUserCheck = request.args.get('ignoreUserCheck', default=False, type=bool)
+
+    # Check existence of an NFT on input
+    if not checkExistenceOfNFT(tokenIdToEngage):
+        return Response(
+            json.dumps({"success": False, "message": f"NFT with tokenId {tokenIdToEngage} does not exist"}),
+            status=404,
+            content_type="application/json")
+
+    # Check existence of an address on input
+    if not ignoreUserCheck and not checkExistenceOfAnAddress(userAddresses, deviceUserAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {deviceUserAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
+
+    nft_tmp = getNFTFromMemory(tokenIdToEngage)
+    result = nft_tmp.userEngagement(deviceUserAddress, tokenIdToEngage)
+    if not result[0]:
+        return Response(
+            json.dumps({"success": False, "message": result[1]}),
+            status=400,
+            content_type="application/json")
+    else:
+        # Write NFT into a transaction as contractData
+        transaction = T.Transaction(sender=deviceUserAddress, recipient="SmartContract",
+                                    amount="0 SNFT",
+                                    gas="{} SNFT".format(result[2]),
+                                    contractData={
+                                        "contractOperation": "TransferOwner",
+                                        "nft": nft_tmp.__repr__()
+                                    })
+        addrInfo = getAddressInfo(ownerAddresses, nft_tmp.ownerAddr)
+        transaction.setSignature(computeSignature(transaction, addrInfo['private_key_b']))
+        blockchain.put_trx_in_mempool([transaction])
+        return Response(
+            json.dumps({"success": True,
+                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}"}),
+            status=200,
+            content_type="application/json")\
+
+@app.route('/api/engageNFTOwner', methods=['PUT'])
+def engageNFTOwner():
+    # Check params of request
+    correctParameters = checkParams(request.args, "ownerAddressEngage", "tokenId")
+    if not correctParameters[0]:
+        return Response(json.dumps({"success": False, "message": correctParameters[1]}), status=400,
+                        content_type="application/json")
+    deviceOwnerAddress = request.args.get('ownerAddressEngage', default="0", type=str)
+    tokenIdToEngage = request.args.get('tokenId', default=-1, type=int)
+
+    # Check existence of an NFT on input
+    if not checkExistenceOfNFT(tokenIdToEngage):
+        return Response(
+            json.dumps({"success": False, "message": f"NFT with tokenId {tokenIdToEngage} does not exist"}),
+            status=404,
+            content_type="application/json")
+
+    # Check existence of an address on input
+    if not checkExistenceOfAnAddress(ownerAddresses, deviceOwnerAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {deviceOwnerAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
+
+    nft_tmp = getNFTFromMemory(tokenIdToEngage)
+    result = nft_tmp.ownerEngagement(deviceOwnerAddress, tokenIdToEngage)
+    if not result[0]:
+        return Response(
+            json.dumps({"success": False, "message": result[1]}),
+            status=400,
+            content_type="application/json")
+    else:
+        # Write NFT into a transaction as contractData
+        transaction = T.Transaction(sender=deviceOwnerAddress, recipient="SmartContract",
+                                    amount="0 SNFT",
+                                    gas="{} SNFT".format(result[2]),
+                                    contractData={
+                                        "contractOperation": "TransferOwner",
+                                        "nft": nft_tmp.__repr__()
+                                    })
+        addrInfo = getAddressInfo(ownerAddresses, nft_tmp.ownerAddr)
+        transaction.setSignature(computeSignature(transaction, addrInfo['private_key_b']))
+        blockchain.put_trx_in_mempool([transaction])
+        return Response(
+            json.dumps({"success": True,
+                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}"}),
+            status=200,
+            content_type="application/json")
 
 if __name__ == '__main__':
     # userAddresses.append(eth.generateKeysAndAddress())
@@ -284,27 +461,3 @@ if __name__ == '__main__':
 
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=False)
-
-    # blockchain = B.Blockchain()
-    #
-    #
-    # # Set more transactions and a new block
-    # trxs = [T.Transaction("Satoshi", "Mike", '5 MOK'), T.Transaction("Mike", "Satoshi", '1 MOK'),
-    #         T.Transaction("Satoshi", "Dave", '10 MOK'), T.Transaction("Dave", "Mike", '3 MOK')]
-    # blockchain.put_trx_in_block(trxs)
-    # blockchain.new_block()
-    #
-    # for i in range(1, 6):
-    #     trxs = []
-    #     for _ in range(0, i + 3):
-    #         sender = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5))
-    #         recipient = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5))
-    #         amount = random.randint(50, 2000)
-    #         trx = T.Transaction(sender, recipient, str(amount) + ' MOK')
-    #         trxs.append(trx)
-    #     blockchain.set_difficulty(diff=i)
-    #     blockchain.put_trx_in_block(trxs)
-    #     blockchain.new_block()
-    #
-    # print("Blockchain: \n{}\n".format(blockchain.chain))
-    # # blockchain.search_transaction('ecba2d')

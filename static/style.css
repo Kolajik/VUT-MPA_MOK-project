@@ -72,7 +72,9 @@ body {
 }
 
 .addresses {
-    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 320 px;
     padding: 15px 2em;
     float: left;
     box-sizing: border-box;
@@ -101,6 +103,14 @@ body {
 .blockchain_actions > button {
     font-size: 17px;
     width: 150px;
+    border: 1px solid black;
+    border-radius: 4px;
+}
+
+.blockchain_actions > input {
+    font-size: 15px;
+    width: 2.5em;
+    margin: 10px 8px;
 }
 
 .blockchain_actions > button:hover {
@@ -126,7 +136,7 @@ td {
 }
 
 th {
-    border: 1px solid #dddddd;
+    border: 2px solid #dddddd;
     text-align: center;
     padding: 8px;
 }

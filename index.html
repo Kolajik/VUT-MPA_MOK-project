@@ -1,120 +1,136 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<body>
+<div class="top_heading">
+    <h1>Smart NFT project implementation in Python UI - DEMO</h1>
+</div>
+
+<!-- BLOCKCHAIN REPRESENTATION -->
+<h3>Blocks of blockchain:</h3>
+<div class="slider">
+    <div class="slides">
+    </div>
+</div>
+
+<hr/>
+
+<!-- ADDRESS SELECTS -->
+<div class="addresses">
+    <label for="ownerAddressSelect">Choose an owner address:</label>
+    <select name="ownerAddressSelect" id="ownerAddressSelect" disabled="disabled">
+        <option>Owner addresses</option>
+    </select>
+</div>
+
+<div class="addresses">
+    <label for="userAddressSelect">Choose a user address:</label>
+    <select name="userAddressSelect" id="userAddressSelect" disabled="disabled">
+        <option>User addresses</option>
+    </select>
+</div>
+
+<!-- BLOCKCHAIN ACTIONS -->
+<h3 style="clear: left">Actions of the blockchain:</h3>
+<div class="blockchain_actions">
+    <label for="blockchainDifficulty">Difficulty (0 - 8):</label>
+    <input type="number" id="blockchainDifficulty" name="blockchainDifficulty"
+           min="0" max="8" value="0" required>
+    <button id="setDifficulty" onClick="setDifficulty()">Set blockchain difficulty</button>
+    <button id="addBlock" onclick="computeNewBlock()">Compute a block</button>
+</div>
+<!-- ADDRESS ACTIONS -->
+<div class="blockchain_actions">
+    <h4>Addresses actions</h4>
+
+    <input type="number" id="ownerAddressCount" name="ownerAddressCount"
+           min="1" max="50" value="1" required>
+    <button id="createOwnerAddresses"
+            onclick="generateAddresses('ownerAddresses', '/api/createNewOwnerAddresses', 'ownerAddressCount', 'ownerAddressSelect', '/api/getOwnerAddresses')">
+        Create owner addresses
+    </button>
+    <button id="getOwnerAddresses" onclick="fetchAddressesAndFillSelect('ownerAddressSelect', '/api/getOwnerAddresses')">
+        Refresh owner addresses
+    </button>
+
+
+    <input type="number" id="userAddressCount" name="userAddressCount"
+           min="1" max="50" value="1" required>
+    <button id="createUserAddresses"
+            onclick="generateAddresses('userAddresses', '/api/createNewUserAddresses', 'userAddressCount', 'userAddressSelect', '/api/getUserAddresses')">
+        Create user addresses
+    </button>
+    <button id="getUserAddresses" onclick="fetchAddressesAndFillSelect('userAddressSelect', '/api/getUserAddresses')">Refresh
+        user addresses
+    </button>
+</div>
+<!-- TOKEN ACTIONS -->
+<div class="blockchain_actions">
+    <h4>NFT actions</h4>
+
+    <label for="nftTimeout">Timeout (100-5000):</label>
+    <input style="width:4em" type="number" id="nftTimeout" name="nftTimeout"
+           min="100" max="5000" value="100" required>
+    <button id="addToken" onclick="createAToken()">Add a new token</button>
+    <button id="fetchTokens" onclick="getAllTokens()">Fetch NFTs into table</button>
+
+    <label for="nftTokenIdInput">TokenId: </label>
+    <input id="nftTokenIdInput" type="number" min="0" name="NFT_TokenID" value="0" required>
+    <label for="nftTokenIdInput">Owner address engagement:</label>
+    <input id="nftUseOwnerAddress" type="checkbox" name="nftUseOwnerAddress">
+
+    <button type="button" id="assignNFTUserButton" onclick="assignUserToNFT()">Change user of NFT</button>
+    <button type="button" id="engageNFTOwnerButton" onclick="engageNFT('ownerAddressSelect', '/api/engageOwnerNFT')">Owner engagement</button>
+    <button type="button" id="engageNFTUserButton" onclick="engageNFT('userAddressSelect', '/api/engageUserNFT')">User engagement</button>
+</div>
+
+<hr>
+
+<!-- TABLES -->
+<div class="tables">
+    <table id="NFTTable">
+        <caption style="font-weight:bold; padding: 3px;">Smart NFTs table</caption>
+        <tr>
+            <th id="TH_deviceAddress">Device address</th>
+            <th id="TH_ownerAddress">Owner address</th>
+            <th id="TH_tokenId">Token ID</th>
+            <th id="TH_state">State</th>
+            <th id="TH_timeout">Timeout</th>
+        </tr>
+        <tr>
+            <td colspan="5" style="text-align: center">Empty table so far</td>
+        </tr>
+    </table>
+</div>
+
+<br>
+
+<div class="tables">
+    <table id="blocksTable">
+        <caption style="font-weight:bold; padding: 3px;">Blocks Table</caption>
+        <tr>
+            <th id="TH_block_hash">Block hash</th>
+            <th id="TH_index">Index</th>
+            <th id="TH_nonce">Block nonce</th>
+            <th id="TH_timestamp">Timestamp</th>
+            <th id="TH_no_transactions"># transactions</th>
+            <th id="TH_nft_present">NFT present (y/n)</th>
+        </tr>
+
+        <tr>
+            <td colspan="6" style="text-align: center">Empty table so far</td>
+        </tr>
+    </table>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="static/client.js"></script>
+</body>
+<head>
     <meta charset="utf-8"/>
     <title>MPA-MOK project Kolaja</title>
     <link rel="stylesheet" href="static/style.css"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div class="top_heading">
-      <h1>Smart NFT project implementation in Python UI - DEMO</h1>
-    </div>
-
-    <h3>Blocks of blockchain:</h3>
-    <div class="slider">
-      <div class="slides">
-      </div>
-    </div>
-
-    <hr/>
-
-    <div class="addresses">
-      <label for="ownerAddress">Choose an owner address:</label>
-      <select name="ownerAddress" id="ownerAddress">
-      </select>
-    </div>
-
-    <div class="addresses">
-      <label for="userAddress">Choose a user address:</label>
-      <select name="userAddress" id="userAddress">
-          <option value="volvo">Volvo</option>
-      </select>
-    </div>
-
-    <h3 style="clear: left;">Actions of the blockchain:</h3>
-    <div class="blockchain_actions">
-      <button id="addBlock" disabled="disabled">Add a block</button>
-    </div>
-    <div class="blockchain_actions">
-      <h4>Addresses actions</h4>
-      <button id="getOwnerAddresses" onclick="fetchAddressesAndFillSelect('ownerAddress', '/api/getOwnerAddresses')">Get owner addresses</button>
-      <button id="getUserAddresses" onclick="fetchAddressesAndFillSelect('userAddress', '/api/getUserAddresses')">Get user addresses</button>
-    </div>
-
-    <div class="tables">
-      <table id="NFTTable">
-      <caption style="font-weight:bold; padding: 3px;">Smart NFTs table</caption>
-        <tr>
-          <th>Device address</th>
-          <th>Owner address</th>
-          <th>Token ID</th>
-          <th>State</th>
-          <th>Timeout</th>
-        </tr>
-        <tr>
-          <td>Centro comercial Moctezuma</td>
-          <td>Francisco Chang</td>
-          <td>Mexico</td>
-          <td>Mexico</td>
-          <td>Mexico</td>
-        </tr>
-        <tr>
-          <td>Ernst Handel</td>
-          <td>Roland Mendel</td>
-          <td>Austria</td>
-          <td>Austria</td>
-          <td>Austria</td>
-        </tr>
-        <tr>
-          <td>Island Trading</td>
-          <td>Helen Bennett</td>
-          <td>Helen Bennett</td>
-          <td>Helen Bennett</td>
-          <td>UK</td>
-        </tr>
-      </table>
-    </div>
-
-    <br>
-
-    <div class="tables">
-      <table id="blocksTable">
-      <caption style="font-weight:bold; padding: 3px;">Blocks Table</caption>
-        <tr>
-          <th>Device address</th>
-          <th>Owner address</th>
-          <th>Token ID</th>
-          <th>State</th>
-          <th>Timeout</th>
-        </tr>
-        <tr>
-          <td>Centro comercial Moctezuma</td>
-          <td>Francisco Chang</td>
-          <td>Mexico</td>
-          <td>Mexico</td>
-          <td>Mexico</td>
-        </tr>
-        <tr>
-          <td>Ernst Handel</td>
-          <td>Roland Mendel</td>
-          <td>Austria</td>
-          <td>Austria</td>
-          <td>Austria</td>
-        </tr>
-        <tr>
-          <td>Island Trading</td>
-          <td>Helen Bennett</td>
-          <td>Helen Bennett</td>
-          <td>Helen Bennett</td>
-          <td>UK</td>
-        </tr>
-      </table>
-    </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="static/client.js"></script>
-  </body>
+</head>
 </html>
