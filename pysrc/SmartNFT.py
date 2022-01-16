@@ -30,12 +30,24 @@ class SmartNFT:
         }
 
     def transferFrom(self, _from, _to):
+        toIsOwner = False
+        previousOwner = self.ownerAddr
         if _from != self.ownerAddr:
-            return [False, "{} is not the token owner.".format(_from)]
+            if _to != self.ownerAddr:
+                return [False, "{} is not the token owner.".format(_to)]
+            else:
+                toIsOwner = True
+            if not toIsOwner:
+                return [False, "{} is not the token owner.".format(_from)]
+        if toIsOwner:
+            self.ownerAddr = _from
         else:
             self.ownerAddr = _to
+        if self.userAddr is None:
             self.state = self.states['EO']
-            return [True, "Token with id {} transferred from {} owner to a new owner with address {}".format(self.tokenId, _from, self.ownerAddr), random.randint(3000, 15000)]
+        else:
+            self.state = self.states['WU']
+        return [True, "Token with id {} transferred from {} owner to a new owner with address {}. State of the token is {}".format(self.tokenId, previousOwner, self.ownerAddr, self.state), random.randint(3000, 15000)]
 
     def setUser(self, _owner, _user):
         if self.userAddr == _user:

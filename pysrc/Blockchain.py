@@ -14,12 +14,6 @@ class Blockchain:
         self.chain = []
         self.mempool = []
 
-    def __repr__(self):
-
-        return {
-
-        }
-
     def new_block(self):
         self.counter += 1
         time_now = time.strftime("%m/%d/%Y, %H:%M:%S")
@@ -84,7 +78,7 @@ class Blockchain:
             print("Transaction {} not of a type Transaction.\nActual type: {}".format(transactions, type(transactions)))
 
     def get_blocks(self):
-        print(self.chain)
+        return self.chain
 
     def set_difficulty(self, diff):
         self.difficulty = diff

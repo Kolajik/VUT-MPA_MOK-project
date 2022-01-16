@@ -25,6 +25,33 @@ nfts = []
 tokenIds = 0
 
 
+def makeTransactionWithNFTAndSign(smartToken, _gas, _sender):
+    transaction = T.Transaction(sender=_sender, recipient="SmartContract",
+                                amount="0 SNFT",
+                                gas="{} SNFT".format(_gas),
+                                contractData={
+                                    "contractOperation": "CreateToken",
+                                    "nft": smartToken.__repr__()
+                                })
+    addrInfo = getAddressInfo(ownerAddresses, smartToken.ownerAddr)
+    transaction.setSignature(computeSignature(transaction, addrInfo['private_key_b']))
+    blockchain.put_trx_in_mempool([transaction])
+
+    return transaction
+
+
+def makeTransactionAndSign(_gas, _sender, _amount, _recipient):
+    transaction = T.Transaction(sender=_sender, recipient=_recipient,
+                                amount=f"{_amount} SNFT",
+                                gas=f"{_gas} SNFT",
+                                contractData=None)
+    addrInfo = getAddressInfo(ownerAddresses, _sender)
+    transaction.setSignature(computeSignature(transaction, addrInfo['private_key_b']))
+    blockchain.put_trx_in_mempool([transaction])
+
+    return transaction
+
+
 def computeSignature(transaction, signing_key):
     """Computes a signature of a transaction hash.
 
@@ -38,6 +65,12 @@ def computeSignature(transaction, signing_key):
             bytes(transaction.transaction_hash, 'utf-8'))
         , 'hex')
 
+
+# TODO: Transactions objects are not being stored anywhere, thus I cannot check with original Transaction object.
+#       There might be a possibility to save Transaction objects to mempool/blockchain itself, but it needs
+#       a refactor of Blockchain class
+# def verifySignature(transaction, verifying_key, signatureToVerify):
+#     return transaction.verifyTransaction()
 
 def getAddressInfo(listOfAddresses, address):
     for obj in listOfAddresses:
@@ -80,6 +113,7 @@ def checkParams(request_params, *required_parameters):
 def print_index():
     return open('./index.html', 'r').read()
 
+
 @app.route('/api/setBlockchainDifficulty', methods=['PUT'])
 def setDifficulty():
     correctParameters = checkParams(request.args, "difficulty")
@@ -89,6 +123,7 @@ def setDifficulty():
     difficulty = request.args.get('difficulty', default=0, type=int)
     blockchain.set_difficulty(difficulty)
     return jsonify(success=True, message="Blockchain difficulty set to {}.".format(blockchain.difficulty))
+
 
 @app.route('/api/getUserAddresses', methods=['GET'])
 def getExistingUserAddresses():
@@ -116,7 +151,7 @@ def getExistingOwnerAddresses():
     return jsonify(serializedOwnerAddr)
 
 
-@app.route('/api/createNewUserAddresses/', methods=['POST'])
+@app.route('/api/createNewUserAddresses', methods=['POST'])
 def createNewUserAddresses():
     correctParameters = checkParams(request.args, "count")
     if not correctParameters[0]:
@@ -128,7 +163,7 @@ def createNewUserAddresses():
     return jsonify(success=True, message="{} user addresses successfully created.".format(countOfAddresses))
 
 
-@app.route('/api/createNewOwnerAddresses/', methods=['POST'])
+@app.route('/api/createNewOwnerAddresses', methods=['POST'])
 def createNewOwnerAddresses():
     correctParameters = checkParams(request.args, "count")
     if not correctParameters[0]:
@@ -142,10 +177,18 @@ def createNewOwnerAddresses():
 
 @app.route('/api/getBlockchain', methods=['GET'])
 def getBlockchain():
-    return jsonify(blockchain.chain)
+    return jsonify(success=True, blocks=blockchain.get_blocks())
 
 
-@app.route('/api/createToken/', methods=['POST'])
+@app.route('/api/computeNewBlock', methods=['PUT'])
+def computeNewBlock():
+    blockchain.new_block()
+    return jsonify(success=True,
+                   message="A new block with index {} was created.".format(blockchain.chain[-1]['index']),
+                   computedBlock=blockchain.chain[-1])
+
+
+@app.route('/api/createToken', methods=['POST'])
 def createToken():
     """ Creates an NFT device. Stores it in memory for further processing and writes it in a transaction to be
         written into the blockchain.
@@ -175,30 +218,14 @@ def createToken():
     nfts.append(smartToken)
 
     # Write NFT into a transaction as contractData
-    transaction = T.Transaction(sender=smartToken.ownerAddr, recipient="SmartContract",
-                                amount="0 SNFT",
-                                gas="{} SNFT".format(random.randint(2500, 10000)),
-                                contractData={
-                                    "contractOperation": "CreateToken",
-                                    "nft": smartToken.__repr__()
-                                })
-    addrInfo = getAddressInfo(ownerAddresses, smartToken.ownerAddr)
-    transaction.setSignature(computeSignature(transaction, addrInfo['private_key_b']))
-    blockchain.put_trx_in_mempool([transaction])
+    transaction = makeTransactionWithNFTAndSign(smartToken, random.randint(2500, 10000), smartToken.ownerAddr)
     return jsonify(success=True,
                    message="Device with address {} and tokenID {} successfully created. Written into transaction "
                            "with transaction hash {}."
                    .format(smartToken.deviceAddr, smartToken.tokenId, transaction.transaction_hash),
                    deviceAddress=smartToken.deviceAddr,
+                   transaction=transaction.__repr__(),
                    transactionHash=transaction.transaction_hash)
-
-
-@app.route('/api/computeNewBlock', methods=['PUT'])
-def computeNewBlock():
-    blockchain.new_block()
-    return jsonify(success=True,
-                   message="A new block with index {} was created.".format(blockchain.chain[-1]['index']),
-                   computedBlock=blockchain.chain[-1])
 
 
 @app.route('/api/getAllTokens', methods=['GET'])
@@ -216,7 +243,7 @@ def transferNFTOwner():
     :param newOwnerAddress: address of a new NFT owner
     :param ownerAddress: address of the old NFT owner
     :param tokenId: tokenId of NFT in question
-    :return:
+    :return: Response object with appropriate response
     """
     # Check params of request
     correctParameters = checkParams(request.args, "newOwnerAddress", "ownerAddress", "tokenId")
@@ -242,12 +269,13 @@ def transferNFTOwner():
 
     # Check existence of an address on input
     if not checkExistenceOfAnAddress(ownerAddresses, newDeviceOwnerAddress):
-        return Response(json.dumps({"success": False, "message": f"Address {deviceOwnerAddress} does not exist"}),
+        return Response(json.dumps({"success": False, "message": f"Address {newDeviceOwnerAddress} does not exist"}),
                         status=404,
                         content_type="application/json")
 
     nft_tmp = getNFTFromMemory(tokenIdToTransfer)
     result = nft_tmp.transferFrom(deviceOwnerAddress, newDeviceOwnerAddress)
+    print(result)
     if not result[0]:
         return Response(
             json.dumps({"success": False, "message": result[1]}),
@@ -267,7 +295,8 @@ def transferNFTOwner():
         blockchain.put_trx_in_mempool([transaction])
         return Response(
             json.dumps({"success": True,
-                        "message": f"Token with tokenId {tokenIdToTransfer} transfered to a new owner {newDeviceOwnerAddress}. Change written into a transaction {transaction.transaction_hash}"}),
+                        "message": f"Token with tokenId {tokenIdToTransfer} transfered to a new owner {newDeviceOwnerAddress}. Change written into a transaction {transaction.transaction_hash}",
+                        "transaction": transaction.__repr__()}),
             status=200,
             content_type="application/json")
 
@@ -324,9 +353,11 @@ def setNFTUser():
         blockchain.put_trx_in_mempool([transaction])
         return Response(
             json.dumps({"success": True,
-                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}"}),
+                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}",
+                        "transaction": transaction.__repr__()}),
             status=200,
             content_type="application/json")
+
 
 @app.route('/api/engageNFTUser', methods=['PUT'])
 def engageNFTUser():
@@ -373,9 +404,11 @@ def engageNFTUser():
         blockchain.put_trx_in_mempool([transaction])
         return Response(
             json.dumps({"success": True,
-                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}"}),
+                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}",
+                        "transaction": transaction.__repr__()}),
             status=200,
-            content_type="application/json")\
+            content_type="application/json")
+
 
 @app.route('/api/engageNFTOwner', methods=['PUT'])
 def engageNFTOwner():
@@ -421,43 +454,45 @@ def engageNFTOwner():
         blockchain.put_trx_in_mempool([transaction])
         return Response(
             json.dumps({"success": True,
-                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}"}),
+                        "message": f"{result[1]} Change written into a transaction {transaction.transaction_hash}",
+                        "transaction": transaction.__repr__()}),
             status=200,
             content_type="application/json")
 
-if __name__ == '__main__':
-    # userAddresses.append(eth.generateKeysAndAddress())
-    # userAddresses.append(eth.generateKeysAndAddress())
-    # # Set genesis block transaction (coinbase transaction)
-    # genesis_trx = [
-    #     T.Transaction(userAddresses[0]['wallet_address'], userAddresses[1]['wallet_address'], "1500 SNFT",
-    #                   random.randint(100, 5000), None)
-    # ]
-    # # Signing transaction
-    # genesis_trx[0].signature = computeSignature(genesis_trx[0], userAddresses[0]['private_key_b'])
-    #
-    # # NFTs
-    # deviceAddresses.append(eth.generateKeysAndAddress())
-    # ownerAddresses.append(eth.generateKeysAndAddress())
-    # nft0 = nft.SmartNFT(initialOwnerAddress=ownerAddresses[0]['wallet_address'],
-    #                     deviceAddress=deviceAddresses[0]['wallet_address'], tokenId=999, timeout=1500)
-    # result = nft0.transferFrom(None, ownerAddresses[0]['wallet_address'])
-    # # print(time.mktime(nft0.timestamp.__getitem__(0)))
-    # genesis_trx[0].contractData = nft0.__repr__()
-    # # print(genesis_trx[0].__repr__()['contractData'])
-    #
-    # # Blockchain
-    # blockchain.set_difficulty(4)
-    # blockchain.put_trx_in_mempool(genesis_trx)
-    # blockchain.new_block()
-    #
-    # # print(blockchain.chain)
-    #
-    # # Verifying transaction
-    # address = userAddresses[0]['public_key']
-    # trx_b = bytes(genesis_trx[0].transaction_hash, 'utf-8')
-    # signature = codecs.decode(bytes(genesis_trx[0].signature), 'hex')
-    # # print(eth.verifyTransaction(address, trx_b, signature))
 
+@app.route('/api/postTransaction', methods=['POST'])
+def postTransaction():
+    # Check params of request
+    correctParameters = checkParams(request.args, "sender", "recipient", "amount")
+    if not correctParameters[0]:
+        return Response(json.dumps({"success": False, "message": correctParameters[1]}), status=400,
+                        content_type="application/json")
+    senderAddress = request.args.get('sender', default="0", type=str)
+    recipientAddress = request.args.get('recipient', default="0", type=str)
+    trxAmount = request.args.get('amount', default=1, type=int)
+
+    # Check existence of an address on input
+    if not checkExistenceOfAnAddress(ownerAddresses, senderAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {senderAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
+
+    # Check existence of an address on input
+    if not checkExistenceOfAnAddress(userAddresses, recipientAddress):
+        return Response(json.dumps({"success": False, "message": f"Address {recipientAddress} does not exist"}),
+                        status=404,
+                        content_type="application/json")
+
+    # Create a transaction and put into a block
+    transaction = makeTransactionAndSign(random.randint(1000, 30000), senderAddress, trxAmount, recipientAddress)
+    return Response(
+        json.dumps({"success": True,
+                    "message": f"Transaction with hash {transaction.transaction_hash} sent to mempool",
+                    "transaction": transaction.__repr__()}),
+        status=200,
+        content_type="application/json")
+
+
+if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=False)

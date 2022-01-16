@@ -13,7 +13,34 @@ Solidity implementation of this project here https://github.com/Hardblock-IMSE/S
 memory is going to get corrupted, because of concurrency.
 
 Available APIs:
-* /api/getETHUsrAddress (no parameters on input)
-* /api/createNewUserAddresses/ (\<int:count\> parameter)
-* /api/createNewUserAddresses/ (\<int:count\> parameter)
-* 
+* Blockchain actions:
+  * [GET] **/api/getUserAddresses** (no parameters on input)
+  * [GET] **/api/getOwnerAddresses** (no parameters on input)
+    * both of these APIs above will respond with ETH addresses created by the other APIs below
+  * [POST] **/api/createNewOwnerAddresses** (\<int:count\> parameter)
+  * [POST] **/api/createNewUserAddresses** (\<int:count\> parameter)
+    * both of the APIs above create ETH addresses based on param count
+  * [PUT] **/api/setBlockchainDifficulty** (\<int:difficulty\> parameter)
+    * sets the blockchain difficulty (how many zeroes as a prefix of the block hash)
+  * [GET] **/api/getBlockchain** (no parameters on input)
+    * gets the whole blockchain
+  * [PUT] **/api/computeNewBlock**  (no parameters on input)
+    * computes a new block and appends it to the blockchain
+* Transactions
+  * [POST] **/api/postTransaction** (\<str:sender\>, \<str:recipient\>, \<int:amount\> parameters)
+    * signs and posts a regular transaction to the mempool
+  * **_NOT DONE_** [GET] **/api/verifyTransaction** (\<str:claimer\>, \<str:transactionHash\> parameters)
+    * returns a boolean if anyone claims has the rights to the transaction
+* Smart contract (NFTs) actions:
+  * [POST] **/api/createToken** (\<int:timeout\>, \<str:ownerAddress\> parameters)
+    * creates an NFT with specified timeout and owner. Puts it in a transaction and sends it to the mempool
+  * [GET] **/api/getAllTokens** (no parameters on input)
+    * gets all created NFTs and their info
+  * [PUT] **/api/transferNFTOwner** (\<str:newOwnerAddress\>, \<str:ownerAddress\>, \<int:tokenId\> parameters)
+    * transfers an NFT owner to a new one. Puts the change in a transaction and sends it to the mempool
+  * [PUT] **/api/setNFTUser** (\<str:newUserAddress\>, \<str:ownerAddress\>, \<int:tokenId\>, \<bool:ignoreUserCheck\> parameters)
+    * sets a user of the NFT. Only owner of the token can do this action
+    * ignoreUserCheck is available because the owner can also be a user of the token
+  * [PUT] **/api/engageNFTUser** (\<str:userAddress\>, \<int:tokenId\> parameters)
+  * [PUT] **/api/engageNFTOwner** (\<str:ownerAddress\>, \<int:tokenId\> parameters)
+    * the two PUT methods above engage the token with user/owner (basically changes the status of token)

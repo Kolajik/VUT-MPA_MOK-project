@@ -19,7 +19,7 @@ def generateKeysAndAddress():
     # ECDSA Public key
     pub_key = ecdsa.SigningKey.from_string(priv_key_byte, curve=ecdsa.SECP256k1,
                                            hashfunc=hashlib.sha3_256).verifying_key
-    pub_key_bytes = codecs.encode(pub_key.to_string(), 'hex')
+    # pub_key_bytes = codecs.encode(pub_key.to_string(), 'hex')
     # print("public key = {}\nverifying key bytes = {}".format(pub_key.to_string(), pub_key_bytes))
 
     # ETH wallet address

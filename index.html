@@ -17,7 +17,7 @@
 <!-- ADDRESS SELECTS -->
 <div class="addresses">
     <label for="ownerAddressSelect">Choose an owner address:</label>
-    <select name="ownerAddressSelect" id="ownerAddressSelect" disabled="disabled">
+    <select name="ownerAddressSelect" id="ownerAddressSelect" size="4" disabled="disabled" multiple>
         <option>Owner addresses</option>
     </select>
 </div>
@@ -37,6 +37,13 @@
            min="0" max="8" value="0" required>
     <button id="setDifficulty" onClick="setDifficulty()">Set blockchain difficulty</button>
     <button id="addBlock" onclick="computeNewBlock()">Compute a block</button>
+    <button id="fetchBlockchain" onclick="fetchBlockchain()">Fetch blocks into table</button>
+
+
+    <label for="trxAmountInput">Transaction amount [SNFT]:</label>
+    <input type="number" id="trxAmountInput" name="trxAmountInput"
+           min="1" value="1" required>
+    <button id="postTransaction" onClick="postTransaction()">Post transaction to blockchain</button>
 </div>
 <!-- ADDRESS ACTIONS -->
 <div class="blockchain_actions">
@@ -79,11 +86,13 @@
     <input id="nftUseOwnerAddress" type="checkbox" name="nftUseOwnerAddress">
 
     <button type="button" id="assignNFTUserButton" onclick="assignUserToNFT()">Change user of NFT</button>
-    <button type="button" id="engageNFTOwnerButton" onclick="engageNFT('ownerAddressSelect', '/api/engageOwnerNFT')">Owner engagement</button>
-    <button type="button" id="engageNFTUserButton" onclick="engageNFT('userAddressSelect', '/api/engageUserNFT')">User engagement</button>
+    <button type="button" id="changeNFTOwnerButton" onclick="changeNFTOwner()">Change owner of NFT</button>
+    <button type="button" id="engageNFTOwnerButton" onclick="engageNFT('ownerAddressSelect', '/api/engageNFTOwner')">Owner engagement</button>
+    <button type="button" id="engageNFTUserButton" onclick="engageNFT('userAddressSelect', '/api/engageNFTUser')">User engagement</button>
 </div>
 
 <hr>
+<button type="button" id="showTable">Hide table with nfts</button>
 
 <!-- TABLES -->
 <div class="tables">
@@ -92,20 +101,19 @@
         <tr>
             <th id="TH_deviceAddress">Device address</th>
             <th id="TH_ownerAddress">Owner address</th>
+            <th id="TH_userAddress">User address</th>
             <th id="TH_tokenId">Token ID</th>
             <th id="TH_state">State</th>
             <th id="TH_timeout">Timeout</th>
         </tr>
         <tr>
-            <td colspan="5" style="text-align: center">Empty table so far</td>
+            <td colspan="6" style="text-align: center">Empty table so far</td>
         </tr>
     </table>
 </div>
 
-<br>
-
 <div class="tables">
-    <table id="blocksTable">
+    <table style="display: none" id="blocksTable">
         <caption style="font-weight:bold; padding: 3px;">Blocks Table</caption>
         <tr>
             <th id="TH_block_hash">Block hash</th>
