@@ -12,7 +12,23 @@ Solidity implementation of this project here https://github.com/Hardblock-IMSE/S
 **Note:** I do not recommend to try request one API more than once at a time. It might happen that the server's state of
 memory is going to get corrupted, because of concurrency.
 
-Available APIs:
+## Build Dockerfile and run docker image
+Build:
+```commandline
+docker build -t mok_project:latest <PATH_TO_PROJ_FOLDER>
+```
+
+Run image as container:
+```commandline
+docker run -p 127.0.0.1:8000:8000/tcp mok_project:latest
+```
+
+Stop all docker containers:
+```commandline
+docker container stop $(docker container ps -a -q)
+```
+
+## Available APIs:
 * Blockchain actions:
   * [GET] **/api/getUserAddresses** (no parameters on input)
   * [GET] **/api/getOwnerAddresses** (no parameters on input)

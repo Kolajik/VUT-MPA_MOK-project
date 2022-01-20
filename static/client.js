@@ -32,7 +32,9 @@ function addBlockUITable(block, table) {
       case 'nft_present':
         if (block['transactions'].length > 0) {
           block['transactions'].forEach((transaction, j) => {
-              isPresent = !isPresent && transaction['contractData'] != null ? true : false;
+              if (!isPresent && transaction['contractData'] != null) {
+                  isPresent = true;
+              }
           });
         }
         tmpData = isPresent ? 'yes' : 'no';
@@ -88,6 +90,7 @@ function fetchAddressesAndFillSelect(selectId, apiURL) {
       if (data.length == 0) {
         let option = document.createElement("option");
         option.text = "No address generated";
+        option.selected = true;
         selectObj.add(option);
         selectObj.disabled = true;
 //        alert('No address generated.');
@@ -106,8 +109,8 @@ function fetchAddressesAndFillSelect(selectId, apiURL) {
   )
 }
 
-function generateAddresses(addressesToGenerate, apiURL, inputId, selectToUpdate, apiURLToFetch) {
-    count = document.getElementById(inputId);
+function generateAddresses(addressesToGenerate, apiURL, selectToUpdate, apiURLToFetch) {
+    count = document.getElementById('addressCount');
     if (+count.value < +count.min || +count.value > +count.max) {
         alert('Count of address input is not within bounds min='+count.min+', max='+count.max+'.');
         return;
@@ -202,7 +205,6 @@ function engageNFT(addressSelectId, apiURL) {
     });
 }
 
-// TODO: Do this, man!
 function changeNFTOwner() {
   const regex = /^(\d+)[.] /;
   var ownerSelectObj = document.getElementById('ownerAddressSelect');
@@ -221,7 +223,6 @@ function changeNFTOwner() {
     });
   }
 
-  console.log(selectedOwnerAddress);
 
   if (ownerSelectObj.options.length === 0 || ownerSelectObj.selectedIndex === -1 || selectedOwnerAddress[0].substring(0, 2) != '0x' || selectedOwnerAddress[1].substring(0, 2) != '0x') {
       alert('You have to generate owner addresses first and select one in the dropdown list.');
@@ -301,13 +302,15 @@ function computeNewBlock() {
       var table = document.getElementById("blocksTable");
 
       // Delete everything from table and set one row
-      for (var i = table.rows.length-1; i >= 1; i--) {
-        table.deleteRow(i);
+      if (table.rows[1].cells[0].innerHTML === "Empty table so far") {
+        for (var i = table.rows.length-1; i >= 1; i--) {
+            table.deleteRow(i);
+        }
       }
       isNFTPresent = addBlockUITable(data['computedBlock'], table);
       // $(".slides").html("");
       addBlockUISlides(data['computedBlock'], isNFTPresent);
-      console.log(data['computedBlock']['transactions']);
+      console.log(data['computedBlock']);
     });
 }
 

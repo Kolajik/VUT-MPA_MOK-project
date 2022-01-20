@@ -1,9 +1,7 @@
-import pysrc.Transaction
 import hashlib
 import time
 
-
-# import json
+import pysrc.Transaction
 
 
 class Blockchain:

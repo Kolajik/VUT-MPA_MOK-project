@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="utf-8"/>
+    <title>MPA-MOK project Kolaja</title>
+    <link rel="icon" type="image/x-icon" href="/static/eth.ico"/>
+    <link rel="stylesheet" href="static/style.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200&display=swap" rel="stylesheet">
+</head>
+
 <body>
 <div class="top_heading">
     <h1>Smart NFT project implementation in Python UI - DEMO</h1>
@@ -18,14 +28,14 @@
 <div class="addresses">
     <label for="ownerAddressSelect">Choose an owner address:</label>
     <select name="ownerAddressSelect" id="ownerAddressSelect" size="4" disabled="disabled" multiple>
-        <option>Owner addresses</option>
+        <option selected="selected">Owner addresses</option>
     </select>
 </div>
 
 <div class="addresses">
     <label for="userAddressSelect">Choose a user address:</label>
     <select name="userAddressSelect" id="userAddressSelect" disabled="disabled">
-        <option>User addresses</option>
+        <option selected="selected">User addresses</option>
     </select>
 </div>
 
@@ -37,7 +47,7 @@
            min="0" max="8" value="0" required>
     <button id="setDifficulty" onClick="setDifficulty()">Set blockchain difficulty</button>
     <button id="addBlock" onclick="computeNewBlock()">Compute a block</button>
-    <button id="fetchBlockchain" onclick="fetchBlockchain()">Fetch blocks into table</button>
+    <button id="fetchBlockchain" onclick="fetchBlockchain()" style="background-color: #ceedbb;">Fetch blocks into table</button>
 
 
     <label for="trxAmountInput">Transaction amount [SNFT]:</label>
@@ -49,24 +59,22 @@
 <div class="blockchain_actions">
     <h4>Addresses actions</h4>
 
-    <input type="number" id="ownerAddressCount" name="ownerAddressCount"
+    <label for="addressCount">Count of addresses:</label>
+    <input type="number" id="addressCount" name="ownerAddressCount"
            min="1" max="50" value="1" required>
     <button id="createOwnerAddresses"
-            onclick="generateAddresses('ownerAddresses', '/api/createNewOwnerAddresses', 'ownerAddressCount', 'ownerAddressSelect', '/api/getOwnerAddresses')">
+            onclick="generateAddresses('ownerAddresses', '/api/createNewOwnerAddresses', 'ownerAddressSelect', '/api/getOwnerAddresses')">
         Create owner addresses
     </button>
-    <button id="getOwnerAddresses" onclick="fetchAddressesAndFillSelect('ownerAddressSelect', '/api/getOwnerAddresses')">
+    <button id="getOwnerAddresses" onclick="fetchAddressesAndFillSelect('ownerAddressSelect', '/api/getOwnerAddresses')" style="background-color: #ceedbb;">
         Refresh owner addresses
     </button>
 
-
-    <input type="number" id="userAddressCount" name="userAddressCount"
-           min="1" max="50" value="1" required>
     <button id="createUserAddresses"
-            onclick="generateAddresses('userAddresses', '/api/createNewUserAddresses', 'userAddressCount', 'userAddressSelect', '/api/getUserAddresses')">
+            onclick="generateAddresses('userAddresses', '/api/createNewUserAddresses', 'userAddressSelect', '/api/getUserAddresses')">
         Create user addresses
     </button>
-    <button id="getUserAddresses" onclick="fetchAddressesAndFillSelect('userAddressSelect', '/api/getUserAddresses')">Refresh
+    <button id="getUserAddresses" onclick="fetchAddressesAndFillSelect('userAddressSelect', '/api/getUserAddresses')" style="background-color: #ceedbb;">Refresh
         user addresses
     </button>
 </div>
@@ -78,7 +86,7 @@
     <input style="width:4em" type="number" id="nftTimeout" name="nftTimeout"
            min="100" max="5000" value="100" required>
     <button id="addToken" onclick="createAToken()">Add a new token</button>
-    <button id="fetchTokens" onclick="getAllTokens()">Fetch NFTs into table</button>
+    <button id="fetchTokens" onclick="getAllTokens()" style="background-color: #ceedbb;">Fetch NFTs into table</button>
 
     <label for="nftTokenIdInput">TokenId: </label>
     <input id="nftTokenIdInput" type="number" min="0" name="NFT_TokenID" value="0" required>
@@ -133,12 +141,5 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="static/client.js"></script>
 </body>
-<head>
-    <meta charset="utf-8"/>
-    <title>MPA-MOK project Kolaja</title>
-    <link rel="stylesheet" href="static/style.css"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200&display=swap" rel="stylesheet">
-</head>
+
 </html>

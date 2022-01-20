@@ -1,4 +1,3 @@
-flask
-secrets
-pycryptodome
-ecdsa
+flask==2.0.2
+pycryptodome==3.12.0
+ecdsa==0.17.0

@@ -1,19 +1,17 @@
-import random
-import string
-import time
-
-import flask
-from flask import jsonify
-from flask import request
-from flask import Response
-import os
 import codecs
 import json
+import os
+import random
 
-import pysrc.Transaction as T
+import flask
+from flask import Response
+from flask import jsonify
+from flask import request
+
 import pysrc.Blockchain as B
 import pysrc.Ethereum as eth
 import pysrc.SmartNFT as nft
+import pysrc.Transaction as T
 
 app = flask.Flask(__name__)
 ownerAddresses = []
@@ -25,12 +23,12 @@ nfts = []
 tokenIds = 0
 
 
-def makeTransactionWithNFTAndSign(smartToken, _gas, _sender):
+def makeTransactionWithNFTAndSign(smartToken, _gas, _sender, operation):
     transaction = T.Transaction(sender=_sender, recipient="SmartContract",
                                 amount="0 SNFT",
                                 gas="{} SNFT".format(_gas),
                                 contractData={
-                                    "contractOperation": "CreateToken",
+                                    "contractOperation": operation,
                                     "nft": smartToken.__repr__()
                                 })
     addrInfo = getAddressInfo(ownerAddresses, smartToken.ownerAddr)
@@ -218,7 +216,7 @@ def createToken():
     nfts.append(smartToken)
 
     # Write NFT into a transaction as contractData
-    transaction = makeTransactionWithNFTAndSign(smartToken, random.randint(2500, 10000), smartToken.ownerAddr)
+    transaction = makeTransactionWithNFTAndSign(smartToken, random.randint(2500, 10000), smartToken.ownerAddr, "CreateToken")
     return jsonify(success=True,
                    message="Device with address {} and tokenID {} successfully created. Written into transaction "
                            "with transaction hash {}."
@@ -345,7 +343,7 @@ def setNFTUser():
                                     amount="0 SNFT",
                                     gas="{} SNFT".format(result[2]),
                                     contractData={
-                                        "contractOperation": "TransferOwner",
+                                        "contractOperation": "SetNFTUser",
                                         "nft": nft_tmp.__repr__()
                                     })
         addrInfo = getAddressInfo(ownerAddresses, nft_tmp.ownerAddr)
@@ -396,7 +394,7 @@ def engageNFTUser():
                                     amount="0 SNFT",
                                     gas="{} SNFT".format(result[2]),
                                     contractData={
-                                        "contractOperation": "TransferOwner",
+                                        "contractOperation": "EngageNFTUser",
                                         "nft": nft_tmp.__repr__()
                                     })
         addrInfo = getAddressInfo(ownerAddresses, nft_tmp.ownerAddr)
@@ -446,7 +444,7 @@ def engageNFTOwner():
                                     amount="0 SNFT",
                                     gas="{} SNFT".format(result[2]),
                                     contractData={
-                                        "contractOperation": "TransferOwner",
+                                        "contractOperation": "EngageNFTOwner",
                                         "nft": nft_tmp.__repr__()
                                     })
         addrInfo = getAddressInfo(ownerAddresses, nft_tmp.ownerAddr)
