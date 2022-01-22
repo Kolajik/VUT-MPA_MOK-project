@@ -1,7 +1,7 @@
-import Transaction
 import hashlib
 import time
-import json
+
+import pysrc.Transaction
 
 
 class Blockchain:
@@ -29,7 +29,8 @@ class Blockchain:
             "timestamp": time_now,
             "difficulty": self.difficulty,
             "transactions": self.mempool,
-            "transactions_hash": hashlib.sha3_256(str(self.mempool).encode('utf-8')).hexdigest(),
+            "transactions_hash": hashlib.sha3_256(
+                str(self.mempool).encode('utf-8') + time_now.encode('utf-8')).hexdigest(),
             "previous_hash": previous_hash,
             "block_hash": block_hash.hexdigest(),
             "nonce": nonce
@@ -38,9 +39,14 @@ class Blockchain:
 
         self.chain.append(block)
 
-        # json.dump(block).encode()
+        # json.dump(block)
 
     def search_transaction(self, transaction_hash):
+        """Finds a transaction in blockchain and prints its details.
+
+        :param transaction_hash: transaction hash
+        :return: None. Prints its details into console.
+        """
         if len(self.chain) == 0:
             pass
         else:
@@ -56,16 +62,21 @@ class Blockchain:
                         j += 1
                 i += 1
 
-    def put_trx_in_block(self, transactions):
+    def put_trx_in_mempool(self, transactions):
+        """Puts a transaction into the mempool
+
+        :param transactions: list of transactions of type Transaction
+        :return: None. Puts transaction into the mempool.
+        """
         # print(transactions)
-        if isinstance(transactions[0], Transaction.Transaction):
+        if isinstance(transactions[0], pysrc.Transaction.Transaction):
             for trx in transactions:
-                self.mempool.append(trx)
+                self.mempool.append(trx.__repr__())
         else:
             print("Transaction {} not of a type Transaction.\nActual type: {}".format(transactions, type(transactions)))
 
-    def print_blocks(self):
-        print(self.chain)
+    def get_blocks(self):
+        return self.chain
 
     def set_difficulty(self, diff):
         self.difficulty = diff

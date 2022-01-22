@@ -1,0 +1,147 @@
+/**
+https://css-tricks.com/can-get-pretty-far-making-slider-just-html-css/ - Author of the slide boxes
+**/
+
+html {
+    background: rgba(0, 0, 70, 0.55);
+}
+
+body {
+    margin: 0;
+    padding: 3em;
+    font-family: 'Be Vietnam Pro', sans-serif;
+#    background: rgba(190, 180, 222, 0.9);
+}
+
+.top_heading {
+    font-size: 1rem;
+    text-align: center;
+    padding: 0.5em 0;
+    border-radius: 9px;
+    # height: 100px;
+    width: 100%;
+    background-color: rgba(20, 120, 222, 0.4);
+}
+
+.slider {
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+}
+
+.slides {
+    display: flex;
+
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.slides::-webkit-scrollbar {
+    width: 1em;
+    height: 0.8em;
+}
+
+.slides::-webkit-scrollbar-thumb {
+    background: black;
+    border-radius: 10px;
+}
+
+.slides::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.slides > div {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    width: 150px;
+    height: 100px;
+    margin-right: 20px;
+    border-radius: 10px;
+    background: #efe;
+    transform-origin: center center;
+    transform: scale(1);
+    transition: transform 1s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 65px;
+}
+
+.addresses {
+    margin-left: auto;
+    margin-right: auto;
+    width: 320 px;
+    padding: 15px 2em;
+    float: left;
+    box-sizing: border-box;
+}
+
+.addresses > select {
+    border: 1px solid;
+    border-radius: 4px;
+    width: 100%;
+    background-color: #f1f1f1;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.addresses > label {
+    padding: 0px 20px 0px 0;
+    display: block;
+}
+
+.blockchain_actions {
+    padding: 10px 0;
+    clear: left;
+}
+
+.blockchain_actions > button {
+    font-size: 17px;
+    width: 150px;
+    border: 1px solid black;
+    border-radius: 4px;
+    background-color: #f0a8a8;
+}
+
+.blockchain_actions > input {
+    font-size: 15px;
+    width: 2.5em;
+    margin: 10px 8px;
+}
+
+.blockchain_actions > button:hover {
+    box-shadow: 0 13px 20px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.2);
+}
+
+.tables {
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+    width: 55%;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    border: 2px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
